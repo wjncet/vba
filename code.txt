@@ -1,0 +1,79 @@
+Declare PtrSafe Function GetActiveWindow Lib "user32" () As LongPtr
+Declare PtrSafe Function GetWindowText Lib "user32" Alias "GetWindowTextA" (ByVal hwnd As LongPtr, ByVal lpString As String, ByVal cch As Long) As Long
+
+
+Public SchTime As Variant
+Public cbnt As Integer
+Public currentName As String
+
+Sub ボタン4_Click()
+
+If SchTime = "" Then
+Call AutoRun1
+End If
+
+End Sub
+
+Sub ボタン5_Click()
+
+If SchTime <> "" Then
+Application.OnTime SchTime, "AutoRun2", , False
+SchTime = ""
+Range("A1").Value = "自動処理停止中"
+Else
+Range("A1").Value = "自動処理停止中"
+End If
+End Sub
+
+Sub AutoRun2()
+
+    Dim hwnd As LongPtr
+    Dim lRet As LongPtr
+    Dim sBuf As String * 100
+    Dim sCap As String
+    
+    hwnd = GetActiveWindow
+    
+    lRet = GetWindowText(hwnd, sBuf, Len(sBuf))
+    
+    sCap = Left(sBuf, InStr(sBuf, vbNullChar) - 1)
+    
+
+    If currentName = sCap Then
+    SchTime = Now + TimeValue("00:01:00")
+
+    Range("A1").Value = "自動処理稼働中"
+   Cells(10, 1).Select
+Application.SendKeys ("{Enter}")
+    Application.OnTime SchTime, "AutoRun2"
+    Else
+    SchTime = ""
+    Range("A1").Value = "自動処理停止中"
+    End If
+    
+End Sub
+
+
+Sub AutoRun1()
+
+    Dim hwnd As LongPtr
+    Dim lRet As LongPtr
+    Dim sBuf As String * 100
+    Dim sCap As String
+    
+    hwnd = GetActiveWindow
+    
+    lRet = GetWindowText(hwnd, sBuf, Len(sBuf))
+    
+    currentName = Left(sBuf, InStr(sBuf, vbNullChar) - 1)
+    
+    Range("A1").Value = "自動処理稼働中"
+    Cells(10, 1).Select
+    Application.SendKeys ("{Enter}")
+    SchTime = Now + TimeValue("00:01:00")
+    Application.OnTime SchTime, "AutoRun2"
+    
+End Sub
+
+
+
